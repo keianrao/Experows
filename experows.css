@@ -1,4 +1,25 @@
 
 html {
-    background: white;
+    background: grey;
+	color: white;
+}
+
+.row {
+	margin: 1vw;
+	padding: 1vw;
+	border: 2px ridge black;
+	display: flex;
+}
+
+.row * {
+	margin: 2px 4px;
+}
+
+.textoutput {
+	border: 2px inset black;
+	min-width: 20%;
+}
+
+#inpage-console {
+	height: 4em;
 }
