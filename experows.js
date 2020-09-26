@@ -32,6 +32,7 @@ async function enableRow1() {
 	rowConsole.innerText += " Done.\n";
 }
 
+
 async function enableRow2() {
 	/*
 	* Canonical image link:
@@ -42,7 +43,11 @@ async function enableRow2() {
 	const IMAGE_URL = 
 		"https://upload.wikimedia.org/wikipedia/commons/" +
 		"thumb/8/8c/AD2009Sep20_Amanita_muscaria_02.jpg/" +
-		"800px-AD2009Sep20_Amanita_muscaria_02.jpg";
+		"320px-AD2009Sep20_Amanita_muscaria_02.jpg";
+	const IMAGE_ALT =
+		"Picture of a mushroom, with a white stem \n" +
+		"and a white-spotted orange cap. Surrounding \n" +
+		"it and to the background are forest foliage.\n";
 	const rowConsole = document.getElementById("2-console");
 	const imageReq = new XMLHttpRequest();
 
@@ -56,22 +61,41 @@ async function enableRow2() {
 	// Add listeners for responses..
 	rowConsole.innerText += "Installing listeners..\n";
 	imageReq.onload = function () {
+		// Validate and report on the response.
+		if (imageReq.response == null) {
+			rowConsole.innerText += "Response came back, with no image data..\n";
+			return;
+		}
 		rowConsole.innerText += "Received image data from request.\n";
-
 		if (!(imageReq.response instanceof Blob)) {
-			rowConsole.innerText += "..Which was not of the correct data type.";
+			rowConsole.innerText += "..Which was not of the correct data type.\n";
 			return;
 		}
 
-		// Okay, give the canvas an image source based on this blob.
-		// Then make the canvas paint.
+		// Try to paint the response on the canvas.
+		createImageBitmap(imageReq.response)
+			.then(function (imageBitmap) {
+				const canvas = document.getElementById("2-output");
+				const canvasAlt = document.getElementById("2-output-alt");
+				rowConsole.innerText += "Drawing image..";
+				const paintContext2D = canvas.getContext('2d');
+				paintContext2D.drawImage(imageBitmap, 0, 0);
+				canvasAlt.innerText = IMAGE_ALT;
+				rowConsole.innerText += " Done.\n";
+				canvas.style.setProperty("border-style", "solid");
+			})
+			.catch(function (error) {
+				rowConsole.innerText += 
+					"Failed to create drawable bitmap from image data.\n";
+				return;
+			});
 	};
 	imageReq.ontimeout = function () {
 		rowConsole.innerText += "Request timed out.";
 	};
 
 	// Send the request.
-	rowConsole.innerText += "Sending request.."
+	rowConsole.innerText += "Sending request..";
 	imageReq.open("GET", IMAGE_URL);
 	/*
 	* Considering we are in an async function, my *guess* is that it would be okay to
@@ -81,6 +105,6 @@ async function enableRow2() {
 	* Use async.
 	*/
 	imageReq.send();
-	rowConsole.innerText += " Done.\n\n"
+	rowConsole.innerText += " Done.\n\n";
 }
 
